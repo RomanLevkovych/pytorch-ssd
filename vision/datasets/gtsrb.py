@@ -51,7 +51,7 @@ class GTSRB:
         return image_id, (boxes, labels, is_difficult)
 
     def _read_image(self, image_id):
-        image = cv2.imread(image_file)
+        image = cv2.imread(image_id)
         if image.shape[2] == 1:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
         else:
