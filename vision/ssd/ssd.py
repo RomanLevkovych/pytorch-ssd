@@ -36,7 +36,7 @@ class SSD(nn.Module):
         if is_test:
             self.config = config
             self.priors = config.priors.to(self.device)
-            
+
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         confidences = []
         locations = []
@@ -86,7 +86,7 @@ class SSD(nn.Module):
 
         confidences = torch.cat(confidences, 1)
         locations = torch.cat(locations, 1)
-        
+
         if self.is_test:
             confidences = F.softmax(confidences, dim=2)
             boxes = box_utils.convert_locations_to_boxes(
@@ -132,7 +132,7 @@ class SSD(nn.Module):
         self.regression_headers.apply(_xavier_init_)
 
     def load(self, model):
-        self.load_state_dict(torch.load(model, map_location=lambda storage, loc: storage))
+        self.load_state_dict(torch.load(model, map_location='cpu'))#lambda storage, loc: storage))
 
     def save(self, model_path):
         torch.save(self.state_dict(), model_path)
@@ -161,3 +161,7 @@ class MatchPrior(object):
 def _xavier_init_(m: nn.Module):
     if isinstance(m, nn.Conv2d):
         nn.init.xavier_uniform_(m.weight)
+
+if __name__ == '__main__':
+    ssd = SSD()
+    ssd.base_net.requires_grad_(False)

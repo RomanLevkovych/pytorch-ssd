@@ -18,6 +18,7 @@ from vision.ssd.mobilenetv3_ssd_lite import create_mobilenetv3_large_ssd_lite, c
 from vision.ssd.squeezenet_ssd_lite import create_squeezenet_ssd_lite
 from vision.datasets.voc_dataset import VOCDataset
 from vision.datasets.open_images import OpenImagesDataset
+from vision.datasets.gtsrb import GTSRB
 from vision.nn.multibox_loss import MultiboxLoss
 from vision.ssd.config import vgg_ssd_config
 from vision.ssd.config import mobilenetv1_ssd_config
@@ -220,7 +221,13 @@ if __name__ == '__main__':
             store_labels(label_file, dataset.class_names)
             logging.info(dataset)
             num_classes = len(dataset.class_names)
-
+        elif args.dataset_type == 'gtsrb':
+            dataset = GTSRB(dataset_path, transform=train_transform, target_transform=target_transform,
+                            dataset_type='Training')
+            num_classes = len(dataset.class_names)
+            label_file =  os.path.join(args.checkpoint_folder, "gtsrb-model-labels.txt")
+            store_labels(label_file, dataset.class_names)
+            logging.info(dataset)
         else:
             raise ValueError(f"Dataset type {args.dataset_type} is not supported.")
         datasets.append(dataset)
@@ -238,6 +245,10 @@ if __name__ == '__main__':
         val_dataset = OpenImagesDataset(dataset_path,
                                         transform=test_transform, target_transform=target_transform,
                                         dataset_type="test")
+        logging.info(val_dataset)
+    elif args.dataset_type == 'gtsrb':
+        val_dataset = GTSRB(dataset_path, dataset_type='Online-Test-sort',
+        transform=test_transform, target_transform=target_transform)
         logging.info(val_dataset)
     logging.info("validation dataset size: {}".format(len(val_dataset)))
 
@@ -324,7 +335,7 @@ if __name__ == '__main__':
         scheduler.step()
         train(train_loader, net, criterion, optimizer,
               device=DEVICE, debug_steps=args.debug_steps, epoch=epoch)
-        
+
         if epoch % args.validation_epochs == 0 or epoch == args.num_epochs - 1:
             val_loss, val_regression_loss, val_classification_loss = test(val_loader, net, criterion, DEVICE)
             logging.info(

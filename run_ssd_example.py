@@ -18,6 +18,7 @@ label_path = sys.argv[3]
 image_path = sys.argv[4]
 
 class_names = [name.strip() for name in open(label_path).readlines()]
+print(class_names)
 
 if net_type == 'vgg16-ssd':
     net = create_vgg_ssd(len(class_names), is_test=True)
@@ -56,8 +57,12 @@ image = cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB)
 boxes, labels, probs = predictor.predict(image, 10, 0.4)
 
 for i in range(boxes.size(0)):
-    box = boxes[i, :]
-    cv2.rectangle(orig_image, (box[0], box[1]), (box[2], box[3]), (255, 255, 0), 4)
+    box = boxes[i, :].int()
+    # print(f'box: {len(probs)}')
+    cv2.rectangle(orig_image,
+                  (box[0], box[1]),
+                  (box[2], box[3]),
+                  (255, 255, 0))
     #label = f"""{voc_dataset.class_names[labels[i]]}: {probs[i]:.2f}"""
     label = f"{class_names[labels[i]]}: {probs[i]:.2f}"
     cv2.putText(orig_image, label,
