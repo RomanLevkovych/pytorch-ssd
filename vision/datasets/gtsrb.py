@@ -65,7 +65,7 @@ class GTSRB:
         class_names = ['BACKGROUND'] + sorted(list(names['SignName'].unique()))
         class_dict = {class_name: i for i, class_name in enumerate(class_names)}
         data = []
-        subdirs = [item for item in os.listdir(str(path)) if os.path.isdir(os.path.join(str(path), item))]
+        subdirs = [item for item in os.listdir(str(path)) if os.path.isdir(os.path.join(str(path), item)) and item.startswith('00')]
         for dr in subdirs:
             annotation_file_path = self.root / "Online-Test-sort" / dr / f"GT-{dr}.csv"
             annotation_file = pd.read_csv(str(annotation_file_path), sep=";")
