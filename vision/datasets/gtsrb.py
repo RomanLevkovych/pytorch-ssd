@@ -69,7 +69,7 @@ class GTSRB:
             annotation_file_path = self.root / self.dataset_type / dr / f"GT-{dr}.csv"
             annotation_file = pd.read_csv(str(annotation_file_path), sep=";")
             annotation_file['labels'] = annotation_file['ClassId'].apply(lambda x: names[names['ClassId'] == x]['SignName'])
-            annotation_file.apply(lambda x: data.append({'image_id': str(self.root / self.dataset_type / dr / x['Filename']), 'boxes': x[['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32), 'labels': np.array([x['ClassId']])}), axis=1)
+            annotation_file.apply(lambda x: data.append({'image_id': str(self.root / self.dataset_type / dr / x['Filename']), 'boxes': np.array([x[['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32)]), 'labels': np.array([x['ClassId']])}), axis=1)
         return data, class_names, class_dict
 
 
