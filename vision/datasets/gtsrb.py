@@ -51,8 +51,7 @@ class GTSRB:
         return image_id, (boxes, labels, is_difficult)
 
     def _read_image(self, image_id):
-        image_file = self.root / self.dataset_type / image_id.split('_')[0] / image_id
-        image = cv2.imread(str(image_file))
+        image = cv2.imread(image_file)
         if image.shape[2] == 1:
             image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
         else:
@@ -67,10 +66,10 @@ class GTSRB:
         data = []
         subdirs = [item for item in os.listdir(str(path)) if os.path.isdir(os.path.join(str(path), item)) and item.startswith('00')]
         for dr in subdirs:
-            annotation_file_path = self.root / "Online-Test-sort" / dr / f"GT-{dr}.csv"
+            annotation_file_path = self.root / self.dataset_type / dr / f"GT-{dr}.csv"
             annotation_file = pd.read_csv(str(annotation_file_path), sep=";")
             annotation_file['labels'] = annotation_file['ClassId'].apply(lambda x: names[names['ClassId'] == x]['SignName'])
-            annotation_file.apply(lambda x: data.append({'image_id': x['Filename'], 'boxes': x[['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32), 'labels': np.array([x['ClassId']])}), axis=1)
+            annotation_file.apply(lambda x: data.append({'image_id': str(self.root / self.dataset_type / dr / x['Filename']), 'boxes': x[['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32), 'labels': np.array([x['ClassId']])}), axis=1)
         return data, class_names, class_dict
 
 
