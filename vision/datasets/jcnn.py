@@ -57,7 +57,7 @@ class JCNN:
 
     def _read_data(self):
         path = self.root
-        gt = pd.read_csv(path, sep=';', names=['Image', 'Roi.X1','Roi.Y1','Roi.X2','Roi.Y2', 'ClassId'])
+        gt = pd.read_csv(f'{path}/gt.txt', sep=';', names=['Filename', 'Roi.X1','Roi.Y1','Roi.X2','Roi.Y2', 'ClassId'])
         ds = self.root / f'{self.dataset_type}.txt'
         with open(ds) as d:
             ds_images = d.read().split('\n')
@@ -65,10 +65,6 @@ class JCNN:
         class_names = ['BACKGROUND'] + sorted(list(names['SignName'].unique()))
         class_dict = {class_name: i for i, class_name in enumerate(class_names)}
         data = []
-        selected_objs = gt.loc[gt['Image'].isin(ds_images)]
-        # for dr in subdirs:
-        #     annotation_file_path = self.root / self.dataset_type / dr / f"GT-{dr}.csv"
-        #     annotation_file = pd.read_csv(str(annotation_file_path), sep=";")
-        #     annotation_file['labels'] = annotation_file['ClassId'].apply(lambda x: names[names['ClassId'] == x]['SignName'])
+        selected_objs = gt.loc[gt['Filename'].isin(ds_images)]
         selected_objs.apply(lambda x: data.append({'image_id': x['Filename'], 'boxes': np.array([x[['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32)]), 'labels': np.array([x['ClassId']])}), axis=1)
         return data, class_names, class_dict
