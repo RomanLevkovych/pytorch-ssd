@@ -19,6 +19,7 @@ from vision.ssd.squeezenet_ssd_lite import create_squeezenet_ssd_lite
 from vision.datasets.voc_dataset import VOCDataset
 from vision.datasets.open_images import OpenImagesDataset
 from vision.datasets.gtsrb import GTSRB
+from vision.datasets.jcnn import JCNN
 from vision.nn.multibox_loss import MultiboxLoss
 from vision.ssd.config import vgg_ssd_config
 from vision.ssd.config import mobilenetv1_ssd_config
@@ -228,6 +229,11 @@ if __name__ == '__main__':
             label_file =  os.path.join(args.checkpoint_folder, "gtsrb-model-labels.txt")
             store_labels(label_file, dataset.class_names)
             logging.info(dataset)
+        elif args.dataset_type == 'jcnn':
+            dataset = JCNN(dataset_path, dataset_type='train', transform=train_transform, target_transform=target_transform)
+            num_classes = len(dataset.class_names)
+            label_file =  os.path.join(args.checkpoint_folder, "jcnn-model-labels.txt")
+            store_labels(label_file, dataset.class_names)
         else:
             raise ValueError(f"Dataset type {args.dataset_type} is not supported.")
         datasets.append(dataset)
@@ -250,6 +256,9 @@ if __name__ == '__main__':
         val_dataset = GTSRB(dataset_path, dataset_type='Online-Test-sort',
         transform=test_transform, target_transform=target_transform)
         logging.info(val_dataset)
+    elif args.dataset_type == 'jcnn':
+        val_dataset = JCNN(dataset_path, dataset_type='test',
+                           transform=test_transform, target_transform=target_transform)
     logging.info("validation dataset size: {}".format(len(val_dataset)))
 
     val_loader = DataLoader(val_dataset, args.batch_size,
