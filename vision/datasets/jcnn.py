@@ -66,5 +66,13 @@ class JCNN:
         class_dict = {class_name: i for i, class_name in enumerate(class_names)}
         data = []
         selected_objs = gt.loc[gt['Filename'].isin(ds_images)]
-        selected_objs.apply(lambda x: data.append({'image_id': x['Filename'], 'boxes': np.array([x[['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32)]), 'labels': np.array([x['ClassId']])}), axis=1)
+        for image_id, group in selected_objs.groupby("Filename"):
+            boxes = group.loc[:, ['Roi.X1','Roi.Y1','Roi.X2','Roi.Y2']].values.astype(np.float32)
+            # make labels 64 bits to satisfy the cross_entropy function
+            labels = np.array([name for name in group["ClassId"]], dtype='int64')
+            data.append({
+                'image_id': image_id,
+                'boxes': boxes,
+                'labels': labels
+            })
         return data, class_names, class_dict
